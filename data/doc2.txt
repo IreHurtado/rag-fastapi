@@ -1,0 +1,1 @@
+Python es un lenguaje de programación de propósito general, popular en ciencia de datos, automatización, desarrollo web y scripting. Su ecosistema de librerías facilita el análisis de datos y el prototipado rápido.

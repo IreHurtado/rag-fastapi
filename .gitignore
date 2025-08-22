@@ -1,0 +1,25 @@
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos virtuales
+.venv/
+env/
+venv/
+
+# Configuración local
+.env
+
+# Archivos de índices (FAISS)
+.indexes/
+
+# Archivos temporales
+*.log
+*.tmp
+*.swp
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db

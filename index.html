@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mi RAG demo</title>
+  <!-- Tailwind CDN  -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div class="max-w-3xl mx-auto p-6 space-y-6">
+   <h1 class="text-2xl font-semibold">Mi RAG demo</h1>
+    <!-- Input + botón -->
+    <div class="flex gap-3">
+      <input id="q" placeholder="Escribe tu pregunta…"
+             class="flex-1 px-3 py-2 rounded-lg border border-slate-300 bg-white
+                    focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      <button id="ask"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
+                     bg-indigo-600 text-white font-medium shadow-sm
+                     disabled:opacity-60 disabled:cursor-not-allowed">
+        <!-- Spinner -->
+        <svg id="btnSpin" class="hidden h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <span id="btnText">Preguntar</span>
+      </button>
+    </div>
+
+    <!-- Mensajes -->
+    <p id="msg" class="text-sm"></p>
+    <p id="quota" class="text-xs text-slate-500"></p>
+
+    <!-- Respuesta -->
+    <section class="space-y-2">
+      <h2 class="text-lg font-medium">Respuesta</h2>
+      <pre id="ans"
+           class="bg-white border border-slate-200 rounded-xl p-4 whitespace-pre-wrap min-h-[64px]"></pre>
+    </section>
+
+    <!-- Fuentes -->
+    <section class="space-y-2">
+      <h2 class="text-lg font-medium">Fuentes</h2>
+      <ul id="src" class="space-y-2"></ul>
+    </section>
+  </div>
+
+
+  <script>
+    let inFlight = false;
+    const $ = (id) => document.getElementById(id);
+
+    function setLoading(state) {
+      inFlight = state;
+      const btn = $('ask');
+      const spin = $('btnSpin');
+      const txt = $('btnText');
+      btn.disabled = state;
+      spin.classList.toggle('hidden', !state);
+      txt.textContent = state ? 'Consultando…' : 'Preguntar';
+    }
+
+    $('ask').onclick = async () => {
+      if (inFlight) return;
+      const q = $('q').value.trim();
+      if (!q) return;
+
+      setLoading(true);
+      const ans = $('ans'), src = $('src'), msg = $('msg'), quota = $('quota');
+      ans.textContent = ''; src.innerHTML = ''; msg.textContent = ''; quota.textContent = '';
+
+      try {
+        const res = await fetch('http://127.0.0.1:8000/ask', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ question: q, k: 3, answer: true })
+        });
+
+        // Límites de headers
+        const limit  = res.headers.get('X-RateLimit-Limit');
+        const remain = res.headers.get('X-RateLimit-Remaining');
+        if (limit !== null && remain !== null) {
+          quota.textContent = `Límite diario: ${limit} · Te quedan: ${remain}`;
+        }
+
+        if (!res.ok) {
+          let data = {};
+          try { data = await res.json(); } catch {}
+          msg.textContent = data.detail || 'Error en la petición.';
+          msg.className = 'text-sm text-rose-600';
+          return;
+        }
+
+        const data = await res.json();
+        msg.textContent = '¡Listo!';
+        msg.className = 'text-sm text-emerald-700';
+        ans.textContent = data.answer || '(sin respuesta)';
+
+        // Pintar fuentes
+        src.innerHTML = (data.hits || []).map(h => {
+          const score = (h._score ?? 0).toFixed(3);
+          const snippet = (h.text || '');
+          const short = snippet.length > 180 ? snippet.slice(0,180) + '…' : snippet;
+          return `
+            <li class="bg-white border border-slate-200 rounded-xl p-3">
+              <div class="flex items-center justify-between">
+                <div class="font-medium text-slate-800">${h.source}#${h.chunk_id}</div>
+                <span class="text-xs px-2 py-1 rounded-full bg-slate-100">${score}</span>
+              </div>
+              <p class="mt-2 text-slate-600 text-sm">${short}</p>
+            </li>`;
+        }).join('');
+
+      } catch (e) {
+        msg.textContent = 'Error de red o servidor.';
+        msg.className = 'text-sm text-rose-600';
+        console.error(e);
+      } finally {
+        setLoading(false);
+        $('q').value = '';
+        $('q').focus();
+      }
+    };
+
+    $('q').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); $('ask').click(); }
+    });
+  </script>
+
+
+</body>
+</html>
