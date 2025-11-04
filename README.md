@@ -1,9 +1,9 @@
-📘 RAG con FastAPI y OpenAI
+# 📘 RAG con FastAPI y OpenAI
 
 Este proyecto implementa un sistema RAG (Retrieval-Augmented Generation) utilizando FAISS para indexar documentos, OpenAI para generar embeddings y respuestas, y FastAPI como framework backend.
 La aplicación incluye un frontend básico en HTML + TailwindCSS para interactuar con la API.
 
-🚀 Funcionalidades
+## 🚀 Funcionalidades
 
 Indexación de documentos en chunks y almacenamiento en FAISS.
 
@@ -21,21 +21,21 @@ Límite de peticiones por IP.
 
 Umbral de similitud para evitar respuestas fuera de contexto.
 
-🛠️ Requisitos
+## 🛠️ Requisitos
 
 Python 3.10+
 
 Clave de API de OpenAI (OPENAI_API_KEY)
 
-📦 Instalación
+## 📦 Instalación
 
-Clona el repositorio y entra en la carpeta:
+- Clona el repositorio y entra en la carpeta:
 
 git clone https://github.com/TU-USUARIO/rag-fastapi.git
 cd rag-fastapi
 
 
-Crea un entorno virtual e instala dependencias:
+- Crea un entorno virtual e instala dependencias:
 
 python -m venv .venv
 source .venv/bin/activate   # en Linux/Mac
@@ -44,22 +44,22 @@ source .venv/bin/activate   # en Linux/Mac
 pip install -r requirements.txt
 
 
-Copia el archivo .env.example a .env y añade tu clave de OpenAI:
+- Copia el archivo .env.example a .env y añade tu clave de OpenAI:
 
 OPENAI_API_KEY=tu_api_key
 
-📑 Indexación de documentos
+## 📑 Indexación de documentos
 
-Coloca tus documentos en la carpeta docs/ y ejecuta:
+- Coloca tus documentos en la carpeta docs/ y ejecuta:
 
 python index.py --docs docs/ --out .indexes
 
 
-Esto generará los embeddings y guardará los índices en la carpeta .indexes/.
+- Esto generará los embeddings y guardará los índices en la carpeta .indexes/.
 
-▶️ Ejecutar el servidor
+- ▶️ Ejecutar el servidor
 
-Levanta el servidor con uvicorn:
+- Levanta el servidor con uvicorn:
 
 uvicorn app:app --reload
 
@@ -69,7 +69,8 @@ Por defecto, estará en:
 
 El frontend estará disponible en /, y la API en /ask.
 
-📂 Estructura del proyecto
+## 📂 Estructura del proyecto
+```
 rag-fastapi/
 │── app.py          # API principal con FastAPI
 │── query.py        # Consulta y generación de respuestas
@@ -81,12 +82,13 @@ rag-fastapi/
 │── index.html      # Frontend con Tailwind
 │── docs/           # Carpeta de documentos fuente
 │── .indexes/       # Carpeta de índices FAISS (ignorada en Git)
+```
 
-🌍 Despliegue
+## 🌍 Despliegue
 
 Puedes desplegar en Render o Railway.
 Asegúrate de que en producción se genere .indexes/ al ejecutar index.py tras subir tus documentos.
 
-📜 Licencia
+## 📜 Licencia
 
 MIT License.
